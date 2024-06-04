@@ -82,11 +82,17 @@ def home(request):
 def room(requset, pk):
     room = Room.objects.get(id=pk)
     room_messages=room.message_set.all().order_by('-created')
-
+    participants= room.participants.all()
     if requset.method == 'POST':
-        message = Message.objects.create()
+        message = Message.objects.create(
+            user=requset.user,
+            room=room,
+            body=requset.POST.get('body')
+        )
+        room.participants.add(requset.user)
+        return redirect('room', pk=room.id)
 
-    context={'room' : room, 'room_messages' : room_messages}
+    context={'room' : room, 'room_messages' : room_messages, 'participants' : participants}
     return render(requset, 'base/room.html', context)
 
 @login_required(login_url='login')
@@ -132,4 +138,14 @@ def deleteRoom(request,pk):
         return redirect('home')
     return render(request, 'base/delete.html', {'obj':room})
 
-# Create your views here.
+@login_required(login_url='login')
+def deleteMessage(request,pk):
+    message= Message.objects.get(id=pk)
+
+    if request.user != message.user:
+        return HttpResponse('You are not allowed here.')
+    
+    if request.method == 'POST':
+        message.delete()
+        return redirect('home')
+    return render(request, 'base/delete.html', {'obj': message})

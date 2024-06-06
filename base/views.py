@@ -96,6 +96,15 @@ def room(requset, pk):
     context={'room' : room, 'room_messages' : room_messages, 'participants' : participants}
     return render(requset, 'base/room.html', context)
 
+
+def userProfile(request, pk):
+    user= User.objects.get(id=pk)
+    rooms= user.room_set.all()
+    room_messages= user.message_set.all()
+    topics=Topic.objects.all()
+    context={'user' : user, 'rooms' : rooms, 'room_messages':room_messages, 'topics' : topics}
+    return render(request, 'base/profile.html', context)
+
 @login_required(login_url='login')
 def createRoom(request):
     form= RoomForm()
@@ -150,3 +159,4 @@ def deleteMessage(request,pk):
         message.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': message})
+

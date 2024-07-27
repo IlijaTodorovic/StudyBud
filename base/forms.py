@@ -12,4 +12,4 @@ class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['username' , 'email' ]
-        #exclude = ['username' , 'email' ]
+        #exclude = ['username' , 'email']
